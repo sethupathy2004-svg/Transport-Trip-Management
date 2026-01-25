@@ -226,7 +226,7 @@
     const tripForm = document.getElementById("tripForm");
     const tripsTableBody = document.querySelector("#tripsTable tbody");
 
-    /* 🔹 FIX 1: Declare ALL input elements */
+    /* ✅ MISSING ELEMENT REFERENCES (THIS WAS THE BUG) */
     const tripDate = document.getElementById("tripDate");
     const vehicleNumber = document.getElementById("vehicleNumber");
     const transportName = document.getElementById("transportName");
@@ -267,12 +267,10 @@
     loadWeight.oninput = calculateTotals;
     advanceAmount.oninput = calculateTotals;
 
-    /* 🔹 FIX 2: Disable backend calls for GitHub Pages */
-
     function addTripToTable(trip) {
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td>-</td>
+            <td>${trip.id}</td>
             <td>${trip.tripDate}</td>
             <td>${trip.vehicleNumber}</td>
             <td>${trip.transportName}</td>
@@ -292,10 +290,27 @@
         tripsTableBody.appendChild(row);
 
         row.querySelector(".edit").onclick = () => editTrip(trip);
-        row.querySelector(".delete").onclick = () => row.remove();
+        row.querySelector(".delete").onclick = () => deleteTrip(trip.id);
+    }
+
+    function loadAllTrips() {
+        fetch("http://localhost:8080/api/trips")
+            .then(res => res.json())
+            .then(data => {
+                tripsTableBody.innerHTML = "";
+                data.forEach(addTripToTable);
+            });
+    }
+
+    function deleteTrip(id) {
+        fetch(`http://localhost:8080/api/trips/${id}`, {
+            method: "DELETE"
+        }).then(loadAllTrips);
     }
 
     function editTrip(trip) {
+        editingTripId = trip.id;
+
         tripDate.value = trip.tripDate;
         vehicleNumber.value = trip.vehicleNumber;
         transportName.value = trip.transportName;
@@ -312,8 +327,7 @@
         balanceDate.value = trip.balanceDate;
     }
 
-    /* 🔹 FIX 3: Submit works without backend */
-    tripForm.onsubmit = function(e) {
+    tripForm.onsubmit = function (e) {
         e.preventDefault();
 
         if (!tripForm.checkValidity()) {
@@ -327,24 +341,39 @@
             transportName: transportName.value,
             source: source.value,
             destination: destination.value,
-            pricePerTon: pricePerTon.value,
-            loadWeight: loadWeight.value,
-            unloadWeight: unloadWeight.value,
-            total: total.value,
-            advanceAmount: advanceAmount.value,
+            pricePerTon: +pricePerTon.value,
+            loadWeight: +loadWeight.value,
+            unloadWeight: +unloadWeight.value,
+            total: +total.value,
+            advanceAmount: +advanceAmount.value,
             advanceDate: advanceDate.value,
             advanceAccount: advanceAccount.value,
-            balance: balance.value,
+            balance: +balance.value,
             balanceDate: balanceDate.value
         };
 
-        addTripToTable(tripData);
+        const url = editingTripId
+            ? `http://localhost:8080/api/trips/${editingTripId}`
+            : "http://localhost:8080/api/trips";
 
-        tripForm.reset();
-        total.value = "";
-        balance.value = "";
+        const method = editingTripId ? "PUT" : "POST";
+
+        fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tripData)
+        }).then(() => {
+            editingTripId = null;
+            tripForm.reset();
+            total.value = "";
+            balance.value = "";
+            loadAllTrips();
+        });
     };
+
+    window.onload = loadAllTrips;
 </script>
+
 
 
 </body>
