@@ -55,8 +55,7 @@
             background:#fff7d6;
             font-weight:600;
         }
-
-        /* ✅ Validation UI */
+        
         input:invalid {
             border:2px solid #ef4444;
         }
@@ -225,8 +224,6 @@
 <script>
     const tripForm = document.getElementById("tripForm");
     const tripsTableBody = document.querySelector("#tripsTable tbody");
-
-    /* ✅ MISSING ELEMENT REFERENCES (THIS WAS THE BUG) */
     const tripDate = document.getElementById("tripDate");
     const vehicleNumber = document.getElementById("vehicleNumber");
     const transportName = document.getElementById("transportName");
@@ -243,8 +240,7 @@
     const balanceDate = document.getElementById("balanceDate");
 
     let editingTripId = null;
-
-    /* ✅ Custom validation message */
+    // validation message 
     document.querySelectorAll("input[required]").forEach(input => {
         input.addEventListener("invalid", () => {
             input.setCustomValidity("Enter the data");
@@ -286,7 +282,7 @@
                 <button class="edit">Edit</button>
                 <button class="delete">Delete</button>
             </td>
-        `;
+            `;
         tripsTableBody.appendChild(row);
 
         row.querySelector(".edit").onclick = () => editTrip(trip);
@@ -352,17 +348,12 @@
             balanceDate: balanceDate.value
         };
 
-        const url = editingTripId
-            ? `http://localhost:8080/api/trips/${editingTripId}`
-            : "http://localhost:8080/api/trips";
+        const url = editingTripId ? `http://localhost:8080/api/trips/${editingTripId}` : "http://localhost:8080/api/trips";
 
         const method = editingTripId ? "PUT" : "POST";
 
-        fetch(url, {
-            method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(tripData)
-        }).then(() => {
+        fetch(url, {  method,  headers: { "Content-Type": "application/json" }, body: JSON.stringify(tripData) })
+            .then(() => {
             editingTripId = null;
             tripForm.reset();
             total.value = "";
