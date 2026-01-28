@@ -55,7 +55,7 @@
             background:#fff7d6;
             font-weight:600;
         }
-        
+
         input:invalid {
             border:2px solid #ef4444;
         }
@@ -100,13 +100,9 @@
             border:1px solid #cbd5e1;
         }
 
-        th {
-            background:#f5d76e;
-        }
+        th { background:#f5d76e; }
 
-        tr:hover {
-            background:#fef9e7;
-        }
+        tr:hover { background:#fef9e7; }
 
         .action-cell {
             display:flex;
@@ -114,16 +110,19 @@
             gap:6px;
         }
 
-        button.edit {
-            background:#60a5fa;
-            padding:4px 8px;
-            border-radius:4px;
+        button.edit { background:#60a5fa; padding:4px 8px; border-radius:4px; }
+        button.delete { background:#f87171; padding:4px 8px; border-radius:4px; }
+
+        /* GRID */
+        .form-grid {
+            display:grid;
+            grid-template-columns:1fr;
+            gap:30px;
         }
 
-        button.delete {
-            background:#f87171;
-            padding:4px 8px;
-            border-radius:4px;
+        @media (min-width:768px) {
+            .form-grid { grid-template-columns:1fr 1fr; }
+            .buttons, h3, table { grid-column: span 2; }
         }
     </style>
 </head>
@@ -134,67 +133,57 @@
     <h2>Trip Details Form</h2>
 
     <form id="tripForm" novalidate>
-        <div class="section">
-            <h3>Trip Information</h3>
+        <div class="form-grid">
 
-            <label>Trip Date</label>
-            <input type="date" id="tripDate" required placeholder="Enter the Trip Date">
+            <div class="section">
+                <h3>Trip Information</h3>
+                <label>Trip Date</label>
+                <input type="date" id="tripDate" required>
+                <label>Vehicle Number</label>
+                <input type="text" id="vehicleNumber" required>
+                <label>Transport Name</label>
+                <input type="text" id="transportName" required>
+            </div>
 
-            <label>Vehicle Number</label>
-            <input type="text" id="vehicleNumber" required placeholder="Enter the Vehicle Number Format=>TN-01-AB-1234">
+            <div class="section">
+                <h3>Route Information</h3>
+                <label>Source</label>
+                <input type="text" id="source" required>
+                <label>Destination</label>
+                <input type="text" id="destination" required>
+            </div>
 
-            <label>Transport Name</label>
-            <input type="text" id="transportName" required placeholder="Enter the Transport name">
-        </div>
+            <div class="section">
+                <h3>Load & Price</h3>
+                <label>Price Per Ton</label>
+                <input type="number" id="pricePerTon" required>
+                <label>Load Weight</label>
+                <input type="number" id="loadWeight" required>
+                <label>Total Price</label>
+                <input type="number" id="total" readonly>
+                <label>Unload Weight</label>
+                <input type="number" id="unloadWeight" placeholder="Update after unloading">
+            </div>
 
-        <div class="section">
-            <h3>Route Information</h3>
+            <div class="section">
+                <h3>Payment</h3>
+                <label>Advance Amount</label>
+                <input type="number" id="advanceAmount" required>
+                <label>Advance Date</label>
+                <input type="date" id="advanceDate" required>
+                <label>Advance Account No</label>
+                <input type="text" id="advanceAccount" required>
+                <label>Balance</label>
+                <input type="number" id="balance" readonly>
+                <label>Balance Date</label>
+                <input type="date" id="balanceDate" placeholder="Update after unloading">
+            </div>
 
-            <label>Source</label>
-            <input type="text" id="source" required placeholder="Enter the Source">
+            <div class="buttons">
+                <button type="submit">Submit</button>
+                <button type="reset" class="reset">Reset</button>
+            </div>
 
-            <label>Destination</label>
-            <input type="text" id="destination" required placeholder="Enter the Destination">
-        </div>
-
-        <div class="section">
-            <h3>Load & Price</h3>
-
-            <label>Price Per Ton</label>
-            <input type="number" id="pricePerTon" required placeholder="Enter the Price">
-
-            <label>Load Weight</label>
-            <input type="number" id="loadWeight" required placeholder="Enter the Load Weight">
-
-            <label>Total Price</label>
-            <input type="number" id="total" readonly>
-
-            <label>Unload Weight</label>
-            <input type="number" id="unloadWeight" required placeholder ="Enter the unload weight">
-        </div>
-
-        <div class="section">
-            <h3>Payment</h3>
-
-            <label>Advance Amount</label>
-            <input type="number" id="advanceAmount" required placeholder="Enter The date of advance amount given ">
-
-            <label>Advance Date</label>
-            <input type="date" id="advanceDate" required placeholder="Enter advance date">
-
-            <label>Advance Account No</label>
-            <input type="text" id="advanceAccount" required placeholder="Enter A/c Number">
-
-            <label>Balance</label>
-            <input type="number" id="balance" readonly>
-
-            <label>Balance Date</label>
-            <input type="date" id="balanceDate" required placeholder="Enter the date of Balance completion">
-        </div>
-
-        <div class="buttons">
-            <button type="submit">Submit</button>
-            <button type="reset" class="reset">Reset</button>
         </div>
     </form>
 
@@ -202,19 +191,10 @@
     <table id="tripsTable">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Vehicle</th>
-                <th>Transport</th>
-                <th>Source</th>
-                <th>Destination</th>
-                <th>Price/Ton</th>
-                <th>Load</th>
-                <th>Unload</th>
-                <th>Total</th>
-                <th>Advance</th>
-                <th>Balance</th>
-                <th>Action</th>
+                <th>ID</th><th>Date</th><th>Vehicle</th><th>Transport</th>
+                <th>Source</th><th>Destination</th><th>Price/Ton</th>
+                <th>Load</th><th>Unload</th><th>Total</th>
+                <th>Advance</th><th>Balance</th><th>Action</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -222,150 +202,151 @@
 </div>
 
 <script>
-    const tripForm = document.getElementById("tripForm");
-    const tripsTableBody = document.querySelector("#tripsTable tbody");
-    const tripDate = document.getElementById("tripDate");
-    const vehicleNumber = document.getElementById("vehicleNumber");
-    const transportName = document.getElementById("transportName");
-    const source = document.getElementById("source");
-    const destination = document.getElementById("destination");
-    const pricePerTon = document.getElementById("pricePerTon");
-    const loadWeight = document.getElementById("loadWeight");
-    const unloadWeight = document.getElementById("unloadWeight");
-    const total = document.getElementById("total");
-    const advanceAmount = document.getElementById("advanceAmount");
-    const advanceDate = document.getElementById("advanceDate");
-    const advanceAccount = document.getElementById("advanceAccount");
-    const balance = document.getElementById("balance");
-    const balanceDate = document.getElementById("balanceDate");
+const tripForm = document.getElementById("tripForm");
+const tripsTableBody = document.querySelector("#tripsTable tbody");
 
-    let editingTripId = null;
-    // validation message 
-    document.querySelectorAll("input[required]").forEach(input => {
-        input.addEventListener("invalid", () => {
-            input.setCustomValidity("Enter the data");
+const tripDate = document.getElementById("tripDate");
+const vehicleNumber = document.getElementById("vehicleNumber");
+const transportName = document.getElementById("transportName");
+const source = document.getElementById("source");
+const destination = document.getElementById("destination");
+const pricePerTon = document.getElementById("pricePerTon");
+const loadWeight = document.getElementById("loadWeight");
+const unloadWeight = document.getElementById("unloadWeight");
+const total = document.getElementById("total");
+const advanceAmount = document.getElementById("advanceAmount");
+const advanceDate = document.getElementById("advanceDate");
+const advanceAccount = document.getElementById("advanceAccount");
+const balance = document.getElementById("balance");
+const balanceDate = document.getElementById("balanceDate");
+
+let editingTripId = null;
+let isUnloadingMode = false;
+
+document.querySelectorAll("input[required]").forEach(i=>{
+    i.addEventListener("invalid",()=>i.setCustomValidity("Enter the data"));
+    i.addEventListener("input",()=>i.setCustomValidity(""));
+});
+
+function calculateTotals(){
+    const price=+pricePerTon.value||0;
+    const weight=+loadWeight.value||0;
+    const advance=+advanceAmount.value||0;
+    total.value=price*weight;
+    balance.value=total.value-advance;
+}
+
+pricePerTon.oninput=calculateTotals;
+loadWeight.oninput=calculateTotals;
+advanceAmount.oninput=calculateTotals;
+unloadWeight.oninput=calculateTotals;
+
+function loadAllTrips(){
+    fetch("http://localhost:8080/api/trips")
+        .then(r=>r.json())
+        .then(d=>{
+            tripsTableBody.innerHTML="";
+            d.forEach(addTripToTable);
         });
-        input.addEventListener("input", () => {
-            input.setCustomValidity("");
-        });
-    });
+}
 
-    function calculateTotals() {
-        const price = +pricePerTon.value || 0;
-        const weight = +loadWeight.value || 0;
-        const advance = +advanceAmount.value || 0;
+function addTripToTable(trip){
+    const r=document.createElement("tr");
+    r.innerHTML=`
+        <td>${trip.id}</td><td>${trip.tripDate}</td>
+        <td>${trip.vehicleNumber}</td><td>${trip.transportName}</td>
+        <td>${trip.source}</td><td>${trip.destination}</td>
+        <td>${trip.pricePerTon}</td><td>${trip.loadWeight}</td>
+        <td>${trip.unloadWeight||""}</td><td>${trip.total}</td>
+        <td>${trip.advanceAmount}</td><td>${trip.balance}</td>
+        <td class="action-cell">
+            <button class="edit">Edit</button>
+            <button class="delete">Delete</button>
+        </td>`;
+    tripsTableBody.appendChild(r);
+    r.querySelector(".edit").onclick=()=>editTrip(trip);
+    r.querySelector(".delete").onclick=()=>deleteTrip(trip.id);
+}
 
-        total.value = price * weight;
-        balance.value = total.value - advance;
+function deleteTrip(id){
+    fetch(`http://localhost:8080/api/trips/${id}`,{method:"DELETE"})
+        .then(loadAllTrips);
+}
+
+function editTrip(trip){
+    editingTripId=trip.id;
+    isUnloadingMode=true;
+
+    tripDate.value=trip.tripDate;
+    vehicleNumber.value=trip.vehicleNumber;
+    transportName.value=trip.transportName;
+    source.value=trip.source;
+    destination.value=trip.destination;
+    pricePerTon.value=trip.pricePerTon;
+    loadWeight.value=trip.loadWeight;
+    total.value=trip.total;
+    advanceAmount.value=trip.advanceAmount;
+    advanceDate.value=trip.advanceDate;
+    advanceAccount.value=trip.advanceAccount;
+
+    unloadWeight.value=trip.unloadWeight||"";
+    balance.value=trip.balance||"";
+    balanceDate.value=trip.balanceDate||"";
+
+    unloadWeight.required=true;
+    balanceDate.required=true;
+}
+
+tripForm.onsubmit=function(e){
+    e.preventDefault();
+
+    unloadWeight.required=isUnloadingMode;
+    balanceDate.required=isUnloadingMode;
+
+    if(!tripForm.checkValidity()){
+        tripForm.reportValidity();
+        return;
     }
 
-    pricePerTon.oninput = calculateTotals;
-    loadWeight.oninput = calculateTotals;
-    advanceAmount.oninput = calculateTotals;
-
-    function addTripToTable(trip) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${trip.id}</td>
-            <td>${trip.tripDate}</td>
-            <td>${trip.vehicleNumber}</td>
-            <td>${trip.transportName}</td>
-            <td>${trip.source}</td>
-            <td>${trip.destination}</td>
-            <td>${trip.pricePerTon}</td>
-            <td>${trip.loadWeight}</td>
-            <td>${trip.unloadWeight}</td>
-            <td>${trip.total}</td>
-            <td>${trip.advanceAmount}</td>
-            <td>${trip.balance}</td>
-            <td class="action-cell">
-                <button class="edit">Edit</button>
-                <button class="delete">Delete</button>
-            </td>
-            `;
-        tripsTableBody.appendChild(row);
-
-        row.querySelector(".edit").onclick = () => editTrip(trip);
-        row.querySelector(".delete").onclick = () => deleteTrip(trip.id);
-    }
-
-    function loadAllTrips() {
-        fetch("http://localhost:8080/api/trips")
-            .then(res => res.json())
-            .then(data => {
-                tripsTableBody.innerHTML = "";
-                data.forEach(addTripToTable);
-            });
-    }
-
-    function deleteTrip(id) {
-        fetch(`http://localhost:8080/api/trips/${id}`, {
-            method: "DELETE"
-        }).then(loadAllTrips);
-    }
-
-    function editTrip(trip) {
-        editingTripId = trip.id;
-
-        tripDate.value = trip.tripDate;
-        vehicleNumber.value = trip.vehicleNumber;
-        transportName.value = trip.transportName;
-        source.value = trip.source;
-        destination.value = trip.destination;
-        pricePerTon.value = trip.pricePerTon;
-        loadWeight.value = trip.loadWeight;
-        unloadWeight.value = trip.unloadWeight;
-        total.value = trip.total;
-        advanceAmount.value = trip.advanceAmount;
-        advanceDate.value = trip.advanceDate;
-        advanceAccount.value = trip.advanceAccount;
-        balance.value = trip.balance;
-        balanceDate.value = trip.balanceDate;
-    }
-
-    tripForm.onsubmit = function (e) {
-        e.preventDefault();
-
-        if (!tripForm.checkValidity()) {
-            tripForm.reportValidity();
-            return;
-        }
-
-        const tripData = {
-            tripDate: tripDate.value,
-            vehicleNumber: vehicleNumber.value,
-            transportName: transportName.value,
-            source: source.value,
-            destination: destination.value,
-            pricePerTon: +pricePerTon.value,
-            loadWeight: +loadWeight.value,
-            unloadWeight: +unloadWeight.value,
-            total: +total.value,
-            advanceAmount: +advanceAmount.value,
-            advanceDate: advanceDate.value,
-            advanceAccount: advanceAccount.value,
-            balance: +balance.value,
-            balanceDate: balanceDate.value
-        };
-
-        const url = editingTripId ? `http://localhost:8080/api/trips/${editingTripId}` : "http://localhost:8080/api/trips";
-
-        const method = editingTripId ? "PUT" : "POST";
-
-        fetch(url, {  method,  headers: { "Content-Type": "application/json" }, body: JSON.stringify(tripData) })
-            .then(() => {
-            editingTripId = null;
-            tripForm.reset();
-            total.value = "";
-            balance.value = "";
-            loadAllTrips();
-        });
+    const tripData={
+        tripDate:tripDate.value,
+        vehicleNumber:vehicleNumber.value,
+        transportName:transportName.value,
+        source:source.value,
+        destination:destination.value,
+        pricePerTon:+pricePerTon.value,
+        loadWeight:+loadWeight.value,
+        unloadWeight:+unloadWeight.value,
+        total:+total.value,
+        advanceAmount:+advanceAmount.value,
+        advanceDate:advanceDate.value,
+        advanceAccount:advanceAccount.value,
+        balance:+balance.value,
+        balanceDate:balanceDate.value
     };
 
-    window.onload = loadAllTrips;
+    const url=editingTripId?
+        `http://localhost:8080/api/trips/${editingTripId}`:
+        "http://localhost:8080/api/trips";
+
+    fetch(url,{
+        method:editingTripId?"PUT":"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(tripData)
+    }).then(()=>{
+        editingTripId=null;
+        isUnloadingMode=false;
+        unloadWeight.required=false;
+        balanceDate.required=false;
+        tripForm.reset();
+        total.value="";
+        balance.value="";
+        loadAllTrips();
+    });
+};
+
+window.onload=loadAllTrips;
 </script>
-
-
 
 </body>
 </html>
