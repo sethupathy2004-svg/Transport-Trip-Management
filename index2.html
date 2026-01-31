@@ -129,8 +129,6 @@ button.delete {
     grid-template-columns: 1fr; /* MOBILE */
     gap: 24px;
 }
-
-/* DESKTOP / LARGE TABLET */
 @media (min-width: 992px) {
     .form-grid {
         grid-template-columns: 1fr 1fr;
@@ -159,7 +157,7 @@ button.delete {
 <input type="date" id="tripDate" required>
 
 <label>Vehicle Number</label>
-<input type="text" id="vehicleNumber" required>
+<input type="text" id="vehicleNumber" placeholder="TN-01-AB-1234" required>
 
 <label>Transport Name</label>
 <input type="text" id="transportName" required>
@@ -177,7 +175,7 @@ button.delete {
 <div class="section">
 <h3>Load & Price</h3>
 <label>Price Per Ton</label>
-<input type="number" id="pricePerTon" required>
+<input type="number" id="pricePerTon" required >
 
 <label>Load Weight</label>
 <input type="number" id="loadWeight" required>
@@ -186,7 +184,7 @@ button.delete {
 <input type="number" id="total" readonly>
 
 <label>Unload Weight</label>
-<input type="number" id="unloadWeight">
+<input type="number" id="unloadWeight" placeholder="Enter after unloading">
 </div>
 
 <div class="section">
@@ -201,10 +199,10 @@ button.delete {
 <input type="text" id="advanceAccount" required>
 
 <label>Balance</label>
-<input type="number" id="balance" readonly>
+<input type="number" id="balance" readonly >
 
 <label>Balance Date</label>
-<input type="date" id="balanceDate">
+<input type="date" id="balanceDate" placeholder="Enter after Loading or unloading">
 </div>
 
 <div class="buttons">
