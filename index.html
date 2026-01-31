@@ -38,11 +38,25 @@ font-weight:600;
 .cancel{background:#e5e7eb}
 .export{background:#4ade80}
 
-input{
+input, textarea{
 padding:8px;
 border-radius:6px;
 border:1px solid #ccc;
 width:100%;
+}
+
+textarea{
+resize:none;
+min-height:100px;
+padding:12px;
+box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+transition: border 0.3s, box-shadow 0.3s;
+}
+
+textarea:focus{
+border-color:#f59e0b;
+box-shadow:0 0 5px rgba(245,158,11,0.4);
+outline:none;
 }
 
 label{font-size:13px;margin-top:10px;display:block}
@@ -57,7 +71,7 @@ gap:20px;
 .form-grid{grid-template-columns:1fr}
 }
 
-.section{border:1px solid #ddd;padding:15px;border-radius:10px}
+.section{border:1px solid #ddd;padding:15px;border-radius:10px;margin-bottom:15px}
 
 table{
 width:100%;
@@ -159,11 +173,20 @@ flex-wrap:wrap;
 
 <div class="section">
 <h3>Payment</h3>
+<label>Payment Details</label>
+<textarea id="paymentdetails" placeholder="Enter the Payment Details"></textarea>
 <label>Advance Amount</label>
 <input type="number" id="advanceAmount" required>
 
 <label>Balance</label>
 <input id="balance" readonly>
+</div>
+
+<!-- NEW Feedback Section -->
+<div class="section">
+<h3>Feedback</h3>
+<label>Feedback / Notes</label>
+<textarea id="feedback" placeholder="Enter any feedback or notes here"></textarea>
 </div>
 
 </div>
@@ -183,6 +206,8 @@ let trips = JSON.parse(localStorage.getItem("trips")||"[]");
 let editId=null;
 
 const tableBody=document.querySelector("#tripTable tbody");
+const formView=document.getElementById("formView");
+const tableView=document.getElementById("tableView");
 
 function openForm(){
 formView.style.display="block";
@@ -209,7 +234,6 @@ pricePerTon.oninput = loadWeight.oninput = unloadWeight.oninput = advanceAmount.
  balance.value = (totalCalc - (+advanceAmount.value || 0)).toFixed(2);
 };
 
-
 tripForm.onsubmit = e => {
  e.preventDefault();
 
@@ -225,7 +249,9 @@ tripForm.onsubmit = e => {
   unloadWeight: unloadWeight.value,
   total: total.value,
   advance: advanceAmount.value,
-  balance: balance.value
+  balance: balance.value,
+  paymentdetails: paymentdetails.value,
+  feedback: feedback.value
  };
 
  if (editId) {
@@ -239,7 +265,6 @@ tripForm.onsubmit = e => {
  tripForm.reset();
  openTable();
 };
-
 
 function loadTable(){
 tableBody.innerHTML="";
@@ -280,16 +305,15 @@ function editTrip(id){
  total.value = t.total;
  advanceAmount.value = t.advance;
  balance.value = t.balance;
+ paymentdetails.value = t.paymentdetails || '';
+ feedback.value = t.feedback || '';
 
  openForm();
 }
 
-
 function deleteTrip(id){
-
  const confirmDelete = confirm("Are you sure you want to delete this trip?");
-
- if (!confirmDelete) return;   // user clicked Cancel
+ if (!confirmDelete) return;
 
  trips = trips.filter(t => t.id !== id);
  localStorage.setItem("trips", JSON.stringify(trips));
@@ -297,16 +321,15 @@ function deleteTrip(id){
 }
 
 function exportExcel(){
-let csv="Date,Vehicle,Transport,Source,Destination,Total,Advance,Balance\n";
-trips.forEach(t=>{
-csv+=`'${t.date}',${t.vehicle},${t.transport},${t.source},${t.dest},${t.total},${t.advance},${t.balance}\n`;
-
-});
-const blob=new Blob([csv],{type:"text/csv"});
-const a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="trips.csv";
-a.click();
+ let csv="Date,Vehicle,Transport,Source,Destination,Total,Advance,Balance\n";
+ trips.forEach(t=>{
+   csv+=`'${t.date}',${t.vehicle},${t.transport},${t.source},${t.dest},${t.total},${t.advance},${t.balance}\n`;
+ });
+ const blob=new Blob([csv],{type:"text/csv"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="trips.csv";
+ a.click();
 }
 
 searchBox.oninput=filterDate.onchange=loadTable;
