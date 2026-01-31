@@ -5,140 +5,84 @@
 <title>Transport Trip Management System</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Poppins:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+font-family:Poppins,sans-serif;
+background:radial-gradient(circle at top,#0f2027,#203a43,#000);
+padding:20px;
 }
 
-body {
-    font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at top, #0f2027, #203a43, #000);
-    padding: 16px;
-    overflow-x: hidden; /* IMPORTANT */
+.container{
+max-width:1100px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:16px;
+box-shadow:0 20px 60px rgba(0,0,0,0.4);
 }
 
-/* CONTAINER */
-.container {
-    max-width: 950px;
-    margin: auto;
-    padding: 24px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.95);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+h2{text-align:center;margin-bottom:20px}
+
+button{
+padding:10px 20px;
+border:none;
+border-radius:20px;
+cursor:pointer;
+font-weight:600;
 }
 
-/* HEADINGS */
-h2 {
-    text-align: center;
-    font-family: 'Playfair Display', serif;
-    margin-bottom: 32px;
+.add-btn{background:linear-gradient(135deg,#facc15,#f59e0b);}
+.cancel{background:#e5e7eb}
+.export{background:#4ade80}
+
+input{
+padding:8px;
+border-radius:6px;
+border:1px solid #ccc;
+width:100%;
 }
 
-.section { margin-bottom: 24px; }
+label{font-size:13px;margin-top:10px;display:block}
 
-.section h3 {
-    font-size: 13px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    border-left: 4px solid #bfa14a;
-    padding-left: 8px;
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
 }
 
-/* INPUTS */
-label {
-    display: block;
-    margin-top: 12px;
-    font-size: 13px;
+@media(max-width:768px){
+.form-grid{grid-template-columns:1fr}
 }
 
-input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    border-radius: 6px;
-    border: 1px solid #cbd5e1;
+.section{border:1px solid #ddd;padding:15px;border-radius:10px}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+font-size:12px;
 }
 
-input[readonly] {
-    background: #fff7d6;
-    font-weight: 600;
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
 }
 
-/* BUTTONS */
-.buttons {
-    text-align: center;
-    margin-top: 24px;
-}
+th{background:#facc15}
 
-button {
-    padding: 12px 36px;
-    border-radius: 30px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-}
+.actions button{padding:4px 10px;font-size:12px}
+.edit{background:#60a5fa}
+.delete{background:#f87171}
 
-button[type="submit"] {
-    background: linear-gradient(135deg, #bfa14a, #f5d76e);
-}
-
-button.reset {
-    background: #e5e7eb;
-    margin-left: 10px;
-}
-
-/* TABLE */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 24px;
-    font-size: 12px;
-}
-
-th, td {
-    padding: 8px;
-    border: 1px solid #cbd5e1;
-    text-align: center;
-}
-
-th { background: #f5d76e; }
-tr:hover { background: #fef9e7; }
-
-.action-cell {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-}
-
-button.edit {
-    background: #60a5fa;
-    padding: 4px 8px;
-}
-
-button.delete {
-    background: #f87171;
-    padding: 4px 8px;
-}
-
-/* FORM GRID – MOBILE FIRST */
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* MOBILE */
-    gap: 24px;
-}
-@media (min-width: 992px) {
-    .form-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .buttons,
-    h3,
-    table {
-        grid-column: span 2;
-    }
+.filters{
+display:flex;
+gap:10px;
+margin-bottom:15px;
+flex-wrap:wrap;
 }
 </style>
 </head>
@@ -146,9 +90,35 @@ button.delete {
 <body>
 
 <div class="container">
-<h2>Trip Details Form</h2>
+<h2>🚛 Transport Trip Management</h2>
+
+<!-- TABLE VIEW -->
+<div id="tableView">
+
+<div class="filters">
+<input type="text" id="searchBox" placeholder="Search vehicle / transport">
+<input type="date" id="filterDate">
+<button class="export" onclick="exportExcel()">Export Excel</button>
+<button class="add-btn" onclick="openForm()">➕ Add Trip</button>
+</div>
+
+<table id="tripTable">
+<thead>
+<tr>
+<th>ID</th><th>Date</th><th>Vehicle</th><th>Transport</th>
+<th>Source</th><th>Destination</th><th>Total</th>
+<th>Advance</th><th>Balance</th><th>Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- FORM VIEW -->
+<div id="formView" style="display:none">
 
 <form id="tripForm" novalidate>
+
 <div class="form-grid">
 
 <div class="section">
@@ -157,34 +127,34 @@ button.delete {
 <input type="date" id="tripDate" required>
 
 <label>Vehicle Number</label>
-<input type="text" id="vehicleNumber" placeholder="TN-01-AB-1234" required>
+<input id="vehicleNumber" required>
 
 <label>Transport Name</label>
-<input type="text" id="transportName" required>
+<input id="transportName" required>
 </div>
 
 <div class="section">
-<h3>Route Information</h3>
+<h3>Route</h3>
 <label>Source</label>
-<input type="text" id="source" required>
+<input id="source" required>
 
 <label>Destination</label>
-<input type="text" id="destination" required>
+<input id="destination" required>
 </div>
 
 <div class="section">
 <h3>Load & Price</h3>
 <label>Price Per Ton</label>
-<input type="number" id="pricePerTon" required >
+<input type="number" id="pricePerTon" required>
 
 <label>Load Weight</label>
-<input type="number" id="loadWeight" required>
+<input type="number" id="loadWeight" step="0.001" min="0" required>
 
-<label>Total Price</label>
-<input type="number" id="total" readonly>
+<label>Total</label>
+<input id="total" readonly>
 
 <label>Unload Weight</label>
-<input type="number" id="unloadWeight" placeholder="Enter after unloading">
+<input type="number" id="unloadWeight" step="0.001" min="0">
 </div>
 
 <div class="section">
@@ -192,162 +162,156 @@ button.delete {
 <label>Advance Amount</label>
 <input type="number" id="advanceAmount" required>
 
-<label>Advance Date</label>
-<input type="date" id="advanceDate" required>
-
-<label>Advance Account No</label>
-<input type="text" id="advanceAccount" required>
-
 <label>Balance</label>
-<input type="number" id="balance" readonly >
-
-<label>Balance Date</label>
-<input type="date" id="balanceDate" placeholder="Enter after Loading or unloading">
-</div>
-
-<div class="buttons">
-<button type="submit">Submit</button>
-<button type="reset" class="reset">Reset</button>
+<input id="balance" readonly>
 </div>
 
 </div>
+
+<div style="text-align:center;margin-top:20px">
+<button class="add-btn" type="submit">Save</button>
+<button type="button" class="cancel" onclick="openTable()">Cancel</button>
+</div>
+
 </form>
+</div>
 
-<h3>Trips List</h3>
-<table id="tripsTable">
-<thead>
-<tr>
-<th>ID</th><th>Date</th><th>Vehicle</th><th>Transport</th>
-<th>Source</th><th>Destination</th><th>Price/Ton</th>
-<th>Load</th><th>Unload</th><th>Total</th>
-<th>Advance</th><th>Balance</th><th>Action</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
 </div>
 
 <script>
-const STORAGE_KEY = "trips_data";
-const tripForm = document.getElementById("tripForm");
-const tripsTableBody = document.querySelector("#tripsTable tbody");
+let trips = JSON.parse(localStorage.getItem("trips")||"[]");
+let editId=null;
 
-let editingTripId = null;
+const tableBody=document.querySelector("#tripTable tbody");
 
-function getTrips() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+function openForm(){
+formView.style.display="block";
+tableView.style.display="none";
 }
 
-function saveTrips(trips) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
+function openTable(){
+formView.style.display="none";
+tableView.style.display="block";
+loadTable();
 }
 
-function calculateTotals() {
-    total.value = (+pricePerTon.value || 0) * (+loadWeight.value || 0);
-    balance.value = (+total.value || 0) - (+advanceAmount.value || 0);
-}
+/* Auto calculation */
+pricePerTon.oninput = loadWeight.oninput = unloadWeight.oninput = advanceAmount.oninput = () => {
 
-pricePerTon.oninput = calculateTotals;
-loadWeight.oninput = calculateTotals;
-advanceAmount.oninput = calculateTotals;
+ const load = +loadWeight.value || 0;
+ const unload = +unloadWeight.value || 0;
+ const price = +pricePerTon.value || 0;
 
-function loadAllTrips() {
-    tripsTableBody.innerHTML = "";
-    getTrips().forEach(addTripToTable);
-}
+ const delivered = Math.max(load - unload, 0);   // never negative
+ const totalCalc = delivered * price;
 
-function addTripToTable(trip) {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-        <td>${trip.id}</td>
-        <td>${trip.tripDate}</td>
-        <td>${trip.vehicleNumber}</td>
-        <td>${trip.transportName}</td>
-        <td>${trip.source}</td>
-        <td>${trip.destination}</td>
-        <td>${trip.pricePerTon}</td>
-        <td>${trip.loadWeight}</td>
-        <td>${trip.unloadWeight || ""}</td>
-        <td>${trip.total}</td>
-        <td>${trip.advanceAmount}</td>
-        <td>${trip.balance}</td>
-        <td class="action-cell">
-            <button class="edit">Edit</button>
-            <button class="delete">Delete</button>
-        </td>`;
-    tripsTableBody.appendChild(row);
-
-    row.querySelector(".edit").onclick = () => editTrip(trip);
-    row.querySelector(".delete").onclick = () => deleteTrip(trip.id);
-}
-
-function editTrip(trip) {
-    editingTripId = trip.id;
-
-    tripDate.value = trip.tripDate;
-    vehicleNumber.value = trip.vehicleNumber;
-    transportName.value = trip.transportName;
-    source.value = trip.source;
-    destination.value = trip.destination;
-    pricePerTon.value = trip.pricePerTon;
-    loadWeight.value = trip.loadWeight;
-    unloadWeight.value = trip.unloadWeight || "";
-    total.value = trip.total;
-    advanceAmount.value = trip.advanceAmount;
-    advanceDate.value = trip.advanceDate;
-    advanceAccount.value = trip.advanceAccount;
-    balance.value = trip.balance;
-    balanceDate.value = trip.balanceDate || "";
-}
-
-function deleteTrip(id) {
-    saveTrips(getTrips().filter(t => t.id !== id));
-    loadAllTrips();
-}
-
-tripForm.onsubmit = e => {
-    e.preventDefault();
-
-    if (!tripForm.checkValidity()) {
-        tripForm.reportValidity();
-        return;
-    }
-
-    let trips = getTrips();
-
-    const tripData = {
-        id: editingTripId || (trips.at(-1)?.id || 0) + 1,
-        tripDate: tripDate.value,
-        vehicleNumber: vehicleNumber.value,
-        transportName: transportName.value,
-        source: source.value,
-        destination: destination.value,
-        pricePerTon:+pricePerTon.value,
-        loadWeight:+loadWeight.value,
-        unloadWeight:+unloadWeight.value,
-        total:+total.value,
-        advanceAmount:+advanceAmount.value,
-        advanceDate:advanceDate.value,
-        advanceAccount:advanceAccount.value,
-        balance:+balance.value,
-        balanceDate:balanceDate.value
-    };
-
-    trips = editingTripId
-        ? trips.map(t => t.id === editingTripId ? tripData : t)
-        : [...trips, tripData];
-
-    saveTrips(trips);
-
-    editingTripId = null;
-    tripForm.reset();
-    total.value = "";
-    balance.value = "";
-
-    loadAllTrips();
+ total.value = totalCalc.toFixed(2);
+ balance.value = (totalCalc - (+advanceAmount.value || 0)).toFixed(2);
 };
 
-loadAllTrips();
+
+tripForm.onsubmit = e => {
+ e.preventDefault();
+
+ const data = {
+  id: editId || Date.now(),
+  date: tripDate.value,
+  vehicle: vehicleNumber.value,
+  transport: transportName.value,
+  source: source.value,
+  dest: destination.value,
+  pricePerTon: pricePerTon.value,
+  loadWeight: loadWeight.value,
+  unloadWeight: unloadWeight.value,
+  total: total.value,
+  advance: advanceAmount.value,
+  balance: balance.value
+ };
+
+ if (editId) {
+  trips = trips.map(t => t.id === editId ? data : t);
+ } else {
+  trips.push(data);
+ }
+
+ localStorage.setItem("trips", JSON.stringify(trips));
+ editId = null;
+ tripForm.reset();
+ openTable();
+};
+
+
+function loadTable(){
+tableBody.innerHTML="";
+const search=searchBox.value.toLowerCase();
+const date=filterDate.value;
+
+trips.filter(t=>{
+return(!search||t.vehicle.toLowerCase().includes(search)||t.transport.toLowerCase().includes(search))
+&&(!date||t.date===date);
+}).forEach(t=>{
+tableBody.innerHTML+=`
+<tr>
+<td>${t.id}</td><td>${t.date}</td><td>${t.vehicle}</td><td>${t.transport}</td>
+<td>${t.source}</td><td>${t.dest}</td><td>${t.total}</td>
+<td>${t.advance}</td><td>${t.balance}</td>
+<td class="actions">
+<button class="edit" onclick="editTrip(${t.id})">Edit</button>
+<button class="delete" onclick="deleteTrip(${t.id})">Del</button>
+</td>
+</tr>`;
+});
+}
+
+function editTrip(id){
+ const t = trips.find(x => x.id === id);
+ editId = id;
+
+ tripDate.value = t.date;
+ vehicleNumber.value = t.vehicle;
+ transportName.value = t.transport;
+ source.value = t.source;
+ destination.value = t.dest;
+
+ pricePerTon.value = t.pricePerTon;
+ loadWeight.value = t.loadWeight;
+ unloadWeight.value = t.unloadWeight;
+
+ total.value = t.total;
+ advanceAmount.value = t.advance;
+ balance.value = t.balance;
+
+ openForm();
+}
+
+
+function deleteTrip(id){
+
+ const confirmDelete = confirm("Are you sure you want to delete this trip?");
+
+ if (!confirmDelete) return;   // user clicked Cancel
+
+ trips = trips.filter(t => t.id !== id);
+ localStorage.setItem("trips", JSON.stringify(trips));
+ loadTable();
+}
+
+function exportExcel(){
+let csv="Date,Vehicle,Transport,Source,Destination,Total,Advance,Balance\n";
+trips.forEach(t=>{
+csv+=`'${t.date}',${t.vehicle},${t.transport},${t.source},${t.dest},${t.total},${t.advance},${t.balance}\n`;
+
+});
+const blob=new Blob([csv],{type:"text/csv"});
+const a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="trips.csv";
+a.click();
+}
+
+searchBox.oninput=filterDate.onchange=loadTable;
+
+openTable();
 </script>
 
 </body>
