@@ -62,13 +62,9 @@ outline:none;
 label{font-size:13px;margin-top:10px;display:block}
 
 .form-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-}
-
-@media(max-width:768px){
-.form-grid{grid-template-columns:1fr}
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .section{border:1px solid #ddd;padding:15px;border-radius:10px;margin-bottom:15px}
