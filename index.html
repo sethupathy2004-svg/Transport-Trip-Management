@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Transport Trip Management System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
@@ -61,10 +62,22 @@ outline:none;
 
 label{font-size:13px;margin-top:10px;display:block}
 
-.form-grid{
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* MOBILE: single column */
+    gap: 20px;
+}
+
+@media (min-width: 992px) {
+    .form-grid {
+        grid-template-columns: 1fr 1fr; /* DESKTOP: 2 columns */
+    }
+
+    .buttons,
+    h3,
+    table {
+        grid-column: span 2;
+    }
 }
 
 .section{border:1px solid #ddd;padding:15px;border-radius:10px;margin-bottom:15px}
@@ -74,6 +87,9 @@ width:100%;
 border-collapse:collapse;
 margin-top:15px;
 font-size:12px;
+display:block;
+overflow-x:auto;
+white-space:nowrap;
 }
 
 th,td{
@@ -137,19 +153,19 @@ flex-wrap:wrap;
 <input type="date" id="tripDate" required>
 
 <label>Vehicle Number</label>
-<input id="vehicleNumber" required>
+<input type="text" id="vehicleNumber" required>
 
 <label>Transport Name</label>
-<input id="transportName" required>
+<input type="text" id="transportName" required>
 </div>
 
 <div class="section">
 <h3>Route</h3>
 <label>Source</label>
-<input id="source" required>
+<input type="text" id="source" required>
 
 <label>Destination</label>
-<input id="destination" required>
+<input type="text" id="destination" required>
 </div>
 
 <div class="section">
