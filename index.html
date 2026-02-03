@@ -394,7 +394,6 @@ function openFilter(col, th){
     const box = document.createElement("div");
     box.className = "filter-box";
     box.innerHTML = `
-        <input placeholder="Filter value..." onkeyup="setFilter(${col}, this.value)">
         <button onclick="sortAsc(${col})">⬆ Sort A-Z</button>
         <button onclick="sortDesc(${col})">⬇ Sort Z-A</button>
         <button onclick="clearFilter(${col})">❌ Clear</button>
@@ -403,6 +402,7 @@ function openFilter(col, th){
     box.style.display="block";
 }
 
+
 function setFilter(col,val){
     activeFilters[col] = val.toLowerCase();
     loadTable();
@@ -410,8 +410,15 @@ function setFilter(col,val){
 
 function clearFilter(col){
     delete activeFilters[col];
+
+    if(sortColumn === col){
+        sortColumn = null;
+        sortDir = "asc";
+    }
+
     loadTable();
 }
+
 
 function sortAsc(col){
     sortColumn = col;
