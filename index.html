@@ -266,6 +266,34 @@ th {
 body.modal-open {
     overflow: hidden;
 }
+@media (max-width: 768px) {
+
+  .left-filters{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .search-wrap,
+  .date-wrap,
+  .btn-wrap{
+    grid-column: auto;
+    width: 100%;
+  }
+
+  .btn-wrap{
+    justify-content: space-between;
+  }
+
+  #searchBox{
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  button{
+    width: 100%;
+  }
+}
 
 
 
@@ -434,7 +462,7 @@ body.modal-open {
 
 <script>
 let currentPage = 1;
-const rowsPerPage = 100;
+const rowsPerPage = 10;
 
 let trips = JSON.parse(localStorage.getItem("trips") || "[]");
 let transports = JSON.parse(localStorage.getItem("transports") || "[]");
