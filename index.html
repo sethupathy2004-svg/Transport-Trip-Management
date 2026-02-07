@@ -919,11 +919,10 @@ function exportExcel(){
 
     let csv="ID,Date,Vehicle,Transport,Source,Destination,Total,Advance,Balance\n";
 
-    filtered.forEach(t=>{
-        csv += `"${t.id}","${t.date.replaceAll("-","/")}","${t.vehicle}","${t.transport}","${t.source}","${t.dest}","${t.total}","${t.advance}","${t.balance}"\n`;
-      
+   filtered.forEach(t=>{
+    csv += `"${t.id}","=\"${t.date}\"","${t.vehicle}","${t.transport}","${t.source}","${t.dest}","${t.total}","${t.advance}","${t.balance}"\n`;
+});
 
-    });
 
     const blob = new Blob([csv], {type:"text/csv"});
     const a = document.createElement("a");
