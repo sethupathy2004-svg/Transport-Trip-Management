@@ -329,16 +329,6 @@ input[type="date"]:not(:valid){
     color:#999;
 }
 
-/* force placeholder text */
-#filterDate::before{
-    content: "Select date";
-    color:#999;
-}
-
-#filterDate:valid::before{
-    content:"";
-}
-
 
 
 
@@ -359,7 +349,8 @@ input[type="date"]:not(:valid){
     </div>
 
     <div class="date-wrap">
-        <input type="date" id="filterDate">
+       <input type="text" id="filterDate" placeholder="Select date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+
     </div>
 
     <div class="btn-wrap">
