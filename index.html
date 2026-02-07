@@ -82,14 +82,17 @@ label{font-size:13px;margin-top:10px;display:block}
 
 .section{border:1px solid #ddd;padding:15px;border-radius:10px;margin-bottom:15px}
 
+.table-wrap{
+    overflow-x:auto;
+    width:100%;
+}
+
 table{
-width:100%;
-border-collapse:collapse;
-margin-top:15px;
-font-size:12px;
-display:block;
-overflow-x:auto;
-white-space:nowrap;
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    font-size:12px;
+    white-space:nowrap;
 }
 
 th,td{
@@ -117,6 +120,27 @@ th{background:#facc15}
     background:#ef4444;
     color:white;
 }
+.actions{
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    flex-wrap:wrap;
+}
+
+@media (max-width:768px){
+    .actions{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .actions button{
+        width:100%;
+        min-width:0;
+        padding:8px;
+        font-size:13px;
+    }
+}
+
 
 
 .filters{
@@ -294,6 +318,27 @@ body.modal-open {
     width: 100%;
   }
 }
+input[type="date"]{
+    color:#111;
+    background:#fff;
+    font-size:14px;
+}
+
+/* show placeholder when empty */
+input[type="date"]:not(:valid){
+    color:#999;
+}
+
+/* force placeholder text */
+#filterDate::before{
+    content: "Select date";
+    color:#999;
+}
+
+#filterDate:valid::before{
+    content:"";
+}
+
 
 
 
@@ -508,6 +553,20 @@ function setFilter(col,val){
     loadTable();
 }
 
+function sortAsc(col){
+    sortColumn = col;
+    sortDir = "asc";
+    currentPage = 1;
+    loadTable();
+}
+
+function sortDesc(col){
+    sortColumn = col;
+    sortDir = "desc";
+    currentPage = 1;
+    loadTable();
+}
+
 function clearFilter(col){
     delete activeFilters[col];
 
@@ -516,22 +575,9 @@ function clearFilter(col){
         sortDir = "asc";
     }
 
+    currentPage = 1;
     loadTable();
 }
-
-
-function sortAsc(col){
-    sortColumn = col;
-    sortDir = "asc";
-    loadTable();
-}
-
-function sortDesc(col){
-    sortColumn = col;
-    sortDir = "desc";
-    loadTable();
-}
-
 
 function openTable(){
     formView.style.display="none";
@@ -874,7 +920,7 @@ function exportExcel(){
     let csv="ID,Date,Vehicle,Transport,Source,Destination,Total,Advance,Balance\n";
 
     filtered.forEach(t=>{
-        csv += `"${t.id}","${t.date.replaceAll("-","/")}""${t.vehicle}","${t.transport}","${t.source}","${t.dest}","${t.total}","${t.advance}","${t.balance}"\n`;
+        csv += `"${t.id}","${t.date.replaceAll("-","/")}","${t.vehicle}","${t.transport}","${t.source}","${t.dest}","${t.total}","${t.advance}","${t.balance}"\n`;
       
 
     });
