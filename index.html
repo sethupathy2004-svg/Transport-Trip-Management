@@ -14,16 +14,19 @@ body{
 font-family:Poppins,sans-serif;
 background:radial-gradient(circle at top,#0f2027,#203a43,#000);
 padding:20px;
+      overflow-x:auto;
 }
 
 .container{
-max-width:1100px;
-margin:auto;
-background:white;
-padding:25px;
-border-radius:16px;
-box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    width:1100px;
+    min-width:1100px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
 }
+
 
 h2{text-align:center;margin-bottom:20px}
 
@@ -222,6 +225,8 @@ th {
         1.2fr;  /* Action */
     gap:14px;
     align-items:center;
+      flex-wrap:nowrap;
+    overflow-x:auto;
 }
 
 
@@ -290,47 +295,19 @@ th {
 body.modal-open {
     overflow: hidden;
 }
-@media (max-width: 768px) {
 
-  .left-filters{
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .search-wrap,
-  .date-wrap,
-  .btn-wrap{
-    grid-column: auto;
-    width: 100%;
-  }
-
-  .btn-wrap{
-    justify-content: space-between;
-  }
-
-  #searchBox{
+input[type="date"], #filterDate{
+    height: 42px;
+    padding: 10px 12px;
     font-size: 14px;
-    padding: 10px;
-  }
-
-  button{
-    width: 100%;
-  }
-}
-input[type="date"]{
-    color:#111;
+    border-radius: 10px;
+    border: 2px solid #facc15;
+    box-shadow: 0 0 0 3px rgba(250,204,21,0.25);
     background:#fff;
-    font-size:14px;
 }
-
-/* show placeholder when empty */
-input[type="date"]:not(:valid){
-    color:#999;
+    input, select, textarea {
+    font-size: 16px;
 }
-
-
-
 
 </style>
 </head>
@@ -349,7 +326,12 @@ input[type="date"]:not(:valid){
     </div>
 
     <div class="date-wrap">
-       <input type="text" id="filterDate" placeholder="Select date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+   <input type="text"
+       id="filterDate"
+       placeholder="Select date"
+       inputmode="none"
+       onfocus="this.type='date'"
+       onblur="if(!this.value)this.type='text'">
 
     </div>
 
