@@ -308,6 +308,11 @@ input[type="date"], #filterDate{
     input, select, textarea {
     font-size: 16px;
 }
+      #filterDate{
+    font-size:16px;
+    height:42px;
+}
+
 
 </style>
 </head>
@@ -326,13 +331,15 @@ input[type="date"], #filterDate{
     </div>
 
     <div class="date-wrap">
-           <input type="date" id="filterDate">
-   <!-- <input type="text"
-       id="filterDate"
-      
-       inputmode="none"
-       onfocus="this.type='date'"
-       onblur="if(!this.value)this.type='text'"> -->
+         <input
+    type="text"
+    id="filterDate"
+    placeholder="dd-mm-yyyy"
+    inputmode="none"
+    readonly
+    onfocus="this.type='date'"
+    onblur="if(!this.value) this.type='text'">
+
 
     </div>
 
