@@ -331,7 +331,15 @@ input[type="date"], #filterDate{
     </div>
 
     <div class="date-wrap">
-         <input type="date" id="filterDate" placeholder="Filter by Date">
+       <input
+  type="text"
+  id="filterDate"
+  placeholder="dd-mm-yyyy"
+  inputmode="none"
+  readonly
+  onfocus="this.type='date'"
+  onblur="if(!this.value) this.type='text'">
+
 
 
     </div>
