@@ -259,7 +259,7 @@ th {
 }
 
 .date-wrap{
-    grid-column: span 1;   /* Source + Destination */
+    grid-column: span 2;   /* Source + Destination */
 }
 .btn-wrap{
     grid-column: span 3;   /* Total + Advance + Balance */
@@ -331,14 +331,7 @@ input[type="date"], #filterDate{
     </div>
 
     <div class="date-wrap">
-         <input
-    type="text"
-    id="filterDate"
-    placeholder="dd-mm-yyyy"
-    inputmode="none"
-    readonly
-    onfocus="this.type='date'"
-    onblur="if(!this.value) this.type='text'">
+         <input type="date" id="filterdate" placeholder="Filter by Date">
 
 
     </div>
