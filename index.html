@@ -126,18 +126,21 @@ margin-bottom:15px;
 flex-wrap:wrap;
 }
 .popup{
-    position:absolute;
-    z-index:999;
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    z-index:9999;
     display:none;
 }
 
 .small-popup{
     background:#fff;
-    width:100%;
-    max-width:320px;
-    padding:15px;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    width:360px;              /* fixed like GitHub version */
+    max-width:90vw;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.25);
 }
 
 th {
@@ -174,15 +177,31 @@ th {
 }
 
 .header-bar{
-    display:flex;
-    justify-content:space-between;
+    display:grid;
+    grid-template-columns: 1fr auto;
     align-items:center;
+    gap:20px;
 }
 
 .left-filters{
-    display:flex;
-    gap:10px;
+    display:grid;
+    grid-template-columns: 
+        1.2fr   /* ID */
+        1fr     /* Date */
+        1.2fr   /* Vehicle */
+        1.4fr   /* Transport */
+        1fr     /* Source */
+        1fr     /* Destination */
+        0.9fr   /* Total */
+        1fr     /* Advance */
+        1fr     /* Balance */
+        1.2fr;  /* Action */
+    gap:14px;
+    align-items:center;
 }
+
+
+
 
 .right-actions{
     display:flex;
@@ -190,7 +209,8 @@ th {
 }
 
 #searchBox{
-    width:320px;
+   
+    width:100%;   
     padding:12px 14px;
     font-size:15px;
     font-weight:500;
@@ -205,6 +225,48 @@ th {
     box-shadow:0 0 0 4px rgba(245,158,11,0.35);
 }
 
+.search-wrap{
+    grid-column: span 4;   /* ID + Date + Vehicle + Transport */
+}
+
+.date-wrap{
+    grid-column: span 1;   /* Source + Destination */
+}
+.btn-wrap{
+    grid-column: span 3;   /* Total + Advance + Balance */
+    display:flex;
+    gap:12px;
+    justify-content:flex-end;
+}
+
+.autocomplete-box {
+  position: relative;
+}
+
+.autocomplete-list {
+  position: absolute;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 999;
+}
+
+.autocomplete-list div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.autocomplete-list div:hover {
+  background: #facc15;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
 
 
 </style>
@@ -217,18 +279,23 @@ th {
 
 <!-- TABLE VIEW -->
 <div id="tableView">
+<div class="left-filters">
 
-<div class="filters header-bar">
-    <div class="left-filters">
-        <input type="text" id="searchBox" placeholder="Search vehicle / transport">
+    <div class="search-wrap">
+        <input type="text" id="searchBox" placeholder="🔍 Search vehicle / transport">
+    </div>
+
+    <div class="date-wrap">
         <input type="date" id="filterDate">
     </div>
 
-    <div class="right-actions">
+    <div class="btn-wrap">
         <button class="export" onclick="exportExcel()">Export Excel</button>
         <button class="add-btn" onclick="openForm()">➕ Add Trip</button>
     </div>
+
 </div>
+
 
 
 <table id="tripTable">
@@ -268,14 +335,18 @@ th {
 <label>Vehicle Number</label>
 <input type="text" id="vehicleNumber" required>
 
-<label>Transport Name</label>
-<input type="text" id="transportInput" placeholder="Click to add / select transport" readonly>
+<div class="autocomplete-box">
+    <label>Transport Name</label>
+  <input type="text" id="transportInput" placeholder="Search or add transport..." autocomplete="off">
+  <div id="transportDropdown" class="autocomplete-list"></div>
+</div>
+
 
 <label>Transport Address</label>
-<input type="text" id="transportAddress" readonly>
+<input type="text" id="transportAddress" required>
 
 <label>Transport Phone</label>
-<input type="text" id="transportPhone" readonly>
+<input type="text" id="transportPhone" required>
 
 
 
@@ -319,7 +390,7 @@ th {
 <!-- Feedback Section -->
 <div class="section">
 <h3>Feedback</h3>
-<label>Feedback / Notes</label>
+<label>Feedback</label>
 <textarea id="feedback" placeholder="Enter any feedback or notes here"></textarea>
 </div>
 
@@ -342,14 +413,13 @@ th {
     <input id="tName">
 
     <label>Address</label>
-    <input id="tAddress">
+  <textarea id="tAddress" rows="3" style="width:100%"></textarea>
+
 
     <label>Contact No</label>
     <input id="tPhone">
 
-     <label>Select Existing</label>
-      <select id="transportList" style="width:100%;padding:8px;border-radius:6px"></select>
-
+    
 
     <div style="margin-top:12px;text-align:right">
       <button class="add-btn" onclick="saveTransport()">Save</button>
@@ -368,6 +438,7 @@ const rowsPerPage = 100;
 
 let trips = JSON.parse(localStorage.getItem("trips") || "[]");
 let transports = JSON.parse(localStorage.getItem("transports") || "[]");
+
 let editId = null;
 
 const tableBody = document.querySelector("#tripTable tbody");
@@ -379,7 +450,8 @@ const popup = document.getElementById("transportPopup");
 
 /* --------- Navigation --------- */
 function openForm(){
-    clearForm();   // always open blank
+    clearForm();
+    document.getElementById("transportDropdown").innerHTML = "";
     formView.style.display="block";
     tableView.style.display="none";
 }
@@ -439,6 +511,43 @@ function openTable(){
     loadTable();
 }
 
+
+transportInput.addEventListener("input", function () {
+    const value = this.value.toLowerCase();
+    const dropdown = document.getElementById("transportDropdown");
+    dropdown.innerHTML = "";
+
+    let found = false;
+
+    transports.forEach(t => {
+        if (t.name.toLowerCase().includes(value)) {
+            let div = document.createElement("div");
+            div.textContent = t.name;
+            div.onclick = () => selectTransport(t);
+            dropdown.appendChild(div);
+            found = true;
+        }
+    });
+
+    if (!found && value.trim() !== "") {
+        let add = document.createElement("div");
+        add.innerHTML = `➕ Add "<b>${this.value}</b>"`;
+        add.onclick = () => openTransportPopup(this.value);
+        dropdown.appendChild(add);
+    }
+});
+
+
+function selectTransport(t){
+    transportInput.value = t.name;
+    transportAddress.value = t.address || "";
+    transportPhone.value = t.phone || "";
+    document.getElementById("transportDropdown").innerHTML = "";
+}
+
+
+
+
 /* --------- Auto Calculation --------- */
 pricePerTon.oninput = loadWeight.oninput = unloadWeight.oninput = advanceAmount.oninput = () => {
     const load = +loadWeight.value || 0;
@@ -477,22 +586,25 @@ tripForm.onsubmit = e => {
         return;
     }
 
-    const data = {
-id: editId || generateTripId(),
-        date: tripDate.value,
-        vehicle: vehicleNumber.value.trim(),
-        transport: transportInput.value.trim(),
-        source: source.value.trim(),
-        dest: destination.value.trim(),
-        pricePerTon: pricePerTon.value,
-        loadWeight: loadWeight.value,
-        unloadWeight: unloadWeight.value,
-        total: total.value,
-        advance: advanceAmount.value,
-        balance: balance.value,
-        paymentdetails: paymentdetails.value.trim(),
-        feedback: feedback.value.trim()
-    };
+   const data = {
+    id: editId || generateTripId(),
+    date: tripDate.value,
+    vehicle: vehicleNumber.value.trim(),
+    transport: transportInput.value.trim(),
+    transportAddress: transportAddress.value,
+    transportPhone: transportPhone.value,
+    source: source.value.trim(),
+    dest: destination.value.trim(),
+    pricePerTon: pricePerTon.value,
+    loadWeight: loadWeight.value,
+    unloadWeight: unloadWeight.value,
+    total: total.value,
+    advance: advanceAmount.value,
+    balance: balance.value,
+    paymentdetails: paymentdetails.value.trim(),
+    feedback: feedback.value.trim()
+};
+
 
     if (editId) {
         trips = trips.map(t => t.id === editId ? data : t);
@@ -518,66 +630,49 @@ transportPhone.value = "";
 
 
 /* --------- Transport Popup --------- */
-transportInput.addEventListener("click", () => {
-    const rect = transportInput.getBoundingClientRect();
+function openTransportPopup(name="") {
     popup.style.display = "block";
-    popup.style.top = (rect.bottom + window.scrollY + 6) + "px";
+    document.getElementById("tName").value = name;
+    document.body.classList.add("modal-open");
 
-    const list = document.getElementById("transportList");
-    list.innerHTML = "<option value=''>-- Select Transport --</option>";
-    transports.forEach(t=>{
-        list.innerHTML += `<option value="${t.name}">${t.name}</option>`;
-    });
-
-  list.onchange = () => {
-    const selected = transports.find(t => t.name === list.value);
-
-    if(selected){
-        transportInput.value = selected.name;
-        transportAddress.value = selected.address || "";
-        transportPhone.value = selected.phone || "";
-    }
-
-    closeTransportPopup();
-};
+}
 
 
-    if(window.innerWidth < 600){
-        popup.style.left = "50%";
-        popup.style.transform = "translateX(-50%)";
-        popup.style.width = "90%";
-    } else {
-        popup.style.left = (rect.left + window.scrollX) + "px";
-        popup.style.width = rect.width + "px";
-    }
-});
 
 function closeTransportPopup(){
     popup.style.display = "none";
     tName.value = "";
     tAddress.value = "";
     tPhone.value = "";
+    document.body.classList.remove("modal-open");
+
 }
 
 function saveTransport(){
     const name = tName.value.trim();
-    if(!name) return alert("Enter Transport Name");
+    const address = tAddress.value.trim();
+    const phone = tPhone.value.trim();
 
-    if(transports.some(t => t.name.toLowerCase() === name.toLowerCase())){
-        alert("Transport already exists");
-        return;
-    }
+  if(!name || !tPhone.value.trim()){
+    alert("Enter Transport Name and Phone");
+    return;
+}
 
-    transports.push({
-        name,
-        address: tAddress.value,
-        phone: tPhone.value
-    });
+
+    // Prevent duplicate transport
+ if(transports.some(t => t.name.toLowerCase() === name.toLowerCase())){
+    alert("Transport already exists");
+    tName.focus();
+    return;
+}
+
+
+    const obj = { name, address, phone };
+    transports.push(obj);
 
     localStorage.setItem("transports", JSON.stringify(transports));
-   transportInput.value = name;
-   transportAddress.value = tAddress.value;
-   transportPhone.value = tPhone.value;
+
+    selectTransport(obj);
     closeTransportPopup();
 }
 
@@ -639,7 +734,7 @@ if(sortColumn !== null){
             <td>${t.balance}</td>
             <td class="actions">
                 <button class="edit" onclick="editTrip('${t.id}')">Edit</button>
-                <button class="delete" onclick="deleteTrip('${t.id}')">Del</button>
+                <button class="delete" onclick="deleteTrip('${t.id}')">Delete</button>
             </td>
         </tr>`;
     });
@@ -689,13 +784,8 @@ function editTrip(id){
     tripDate.value = t.date;
     vehicleNumber.value = t.vehicle;
     transportInput.value = t.transport;
-
-    const tr = transports.find(x => x.name === t.transport);
-    if(tr){
-        transportAddress.value = tr.address || "";
-        transportPhone.value = tr.phone || "";
-    }
-
+    transportAddress.value = t.transportAddress || "";
+    transportPhone.value = t.transportPhone || "";
     source.value = t.source;
     destination.value = t.dest;
     pricePerTon.value = t.pricePerTon;
@@ -756,7 +846,9 @@ function exportExcel(){
     let csv="ID,Date,Vehicle,Transport,Source,Destination,Total,Advance,Balance\n";
 
     filtered.forEach(t=>{
-        csv += `"${t.id}","${t.date}","${t.vehicle}","${t.transport}","${t.source}","${t.dest}","${t.total}","${t.advance}","${t.balance}"\n`;
+        csv += `"${t.id}","${t.date.replaceAll("-","/")}""${t.vehicle}","${t.transport}","${t.source}","${t.dest}","${t.total}","${t.advance}","${t.balance}"\n`;
+      
+
     });
 
     const blob = new Blob([csv], {type:"text/csv"});
@@ -779,6 +871,12 @@ document.addEventListener("click", function(e){
 
 
 openTable();
+document.addEventListener("click", function(e){
+    if(!e.target.closest(".autocomplete-box")){
+        document.getElementById("transportDropdown").innerHTML = "";
+    }
+});
+
 </script>
 
 
