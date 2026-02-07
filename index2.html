@@ -99,10 +99,25 @@ text-align:center;
 }
 
 th{background:#facc15}
+.actions button{
+    padding:8px 16px;
+    font-size:14px;
+    border-radius:8px;
+    font-weight:600;
+    margin:4px;
+    min-width:70px;
+}
 
-.actions button{padding:4px 10px;font-size:12px}
-.edit{background:#60a5fa}
-.delete{background:#f87171}
+.edit{
+    background:#3b82f6;
+    color:white;
+}
+
+.delete{
+    background:#ef4444;
+    color:white;
+}
+
 
 .filters{
 display:flex;
@@ -110,6 +125,88 @@ gap:10px;
 margin-bottom:15px;
 flex-wrap:wrap;
 }
+.popup{
+    position:absolute;
+    z-index:999;
+    display:none;
+}
+
+.small-popup{
+    background:#fff;
+    width:100%;
+    max-width:320px;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+th {
+    position: relative;
+    cursor: pointer;
+}
+
+.filter-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    z-index: 9999;
+    display: none;
+    width: 180px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+}
+
+.filter-box input {
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 6px;
+}
+
+.filter-box button {
+    width: 100%;
+    margin-top: 4px;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.header-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.left-filters{
+    display:flex;
+    gap:10px;
+}
+
+.right-actions{
+    display:flex;
+    gap:10px;
+}
+
+#searchBox{
+    width:320px;
+    padding:12px 14px;
+    font-size:15px;
+    font-weight:500;
+    border-radius:10px;
+    border:2px solid #facc15;
+    box-shadow:0 0 0 3px rgba(250,204,21,0.25);
+}
+
+#searchBox:focus{
+    outline:none;
+    border-color:#f59e0b;
+    box-shadow:0 0 0 4px rgba(245,158,11,0.35);
+}
+
+
+
 </style>
 </head>
 
@@ -121,23 +218,39 @@ flex-wrap:wrap;
 <!-- TABLE VIEW -->
 <div id="tableView">
 
-<div class="filters">
-<input type="text" id="searchBox" placeholder="Search vehicle / transport">
-<input type="date" id="filterDate">
-<button class="export" onclick="exportExcel()">Export Excel</button>
-<button class="add-btn" onclick="openForm()">➕ Add Trip</button>
+<div class="filters header-bar">
+    <div class="left-filters">
+        <input type="text" id="searchBox" placeholder="Search vehicle / transport">
+        <input type="date" id="filterDate">
+    </div>
+
+    <div class="right-actions">
+        <button class="export" onclick="exportExcel()">Export Excel</button>
+        <button class="add-btn" onclick="openForm()">➕ Add Trip</button>
+    </div>
 </div>
+
 
 <table id="tripTable">
 <thead>
 <tr>
-<th>ID</th><th>Date</th><th>Vehicle</th><th>Transport</th>
-<th>Source</th><th>Destination</th><th>Total</th>
-<th>Advance</th><th>Balance</th><th>Action</th>
+<th onclick="openFilter(0,this)">ID ⏷</th>
+<th onclick="openFilter(1,this)">Date ⏷</th>
+<th onclick="openFilter(2,this)">Vehicle ⏷</th>
+<th onclick="openFilter(3,this)">Transport ⏷</th>
+<th onclick="openFilter(4,this)">Source ⏷</th>
+<th onclick="openFilter(5,this)">Destination ⏷</th>
+<th onclick="openFilter(6,this)">Total ⏷</th>
+<th onclick="openFilter(7,this)">Advance ⏷</th>
+<th onclick="openFilter(8,this)">Balance ⏷</th>
+<th>Action</th>
 </tr>
 </thead>
+
 <tbody></tbody>
 </table>
+<div id="pagination" style="margin-top:15px;text-align:center"></div>
+
 </div>
 
 <!-- FORM VIEW -->
@@ -156,7 +269,16 @@ flex-wrap:wrap;
 <input type="text" id="vehicleNumber" required>
 
 <label>Transport Name</label>
-<input type="text" id="transportName" required>
+<input type="text" id="transportInput" placeholder="Click to add / select transport" readonly>
+
+<label>Transport Address</label>
+<input type="text" id="transportAddress" readonly>
+
+<label>Transport Phone</label>
+<input type="text" id="transportPhone" readonly>
+
+
+
 </div>
 
 <div class="section">
@@ -176,9 +298,6 @@ flex-wrap:wrap;
 <label>Load Weight</label>
 <input type="number" id="loadWeight" step="0.001" min="0" required>
 
-<label>Total</label>
-<input id="total" readonly>
-
 <label>Unload Weight</label>
 <input type="number" id="unloadWeight" step="0.001" min="0">
 </div>
@@ -189,6 +308,9 @@ flex-wrap:wrap;
 <textarea id="paymentdetails" placeholder="Enter the Payment Details"></textarea>
 <label>Advance Amount</label>
 <input type="number" id="advanceAmount" required>
+<label>Total</label>
+<input id="total" readonly>
+
 
 <label>Balance</label>
 <input id="balance" readonly>
@@ -210,22 +332,106 @@ flex-wrap:wrap;
 
 </form>
 </div>
-
 </div>
 
+<div class="popup" id="transportPopup">
+  <div class="small-popup">
+    <h3 style="margin-bottom:8px">Add Transport</h3>
+
+    <label>Name</label>
+    <input id="tName">
+
+    <label>Address</label>
+    <input id="tAddress">
+
+    <label>Contact No</label>
+    <input id="tPhone">
+
+     <label>Select Existing</label>
+      <select id="transportList" style="width:100%;padding:8px;border-radius:6px"></select>
+
+
+    <div style="margin-top:12px;text-align:right">
+      <button class="add-btn" onclick="saveTransport()">Save</button>
+<button type="button" class="cancel" onclick="closeTransportPopup()">Cancel</button>
+
+
+
+    </div>
+  </div>
+</div>
+
+
 <script>
-let trips = JSON.parse(localStorage.getItem("trips")||"[]");
+let currentPage = 1;
+const rowsPerPage = 100;
+
+let trips = JSON.parse(localStorage.getItem("trips") || "[]");
+let transports = JSON.parse(localStorage.getItem("transports") || "[]");
 let editId = null;
 
 const tableBody = document.querySelector("#tripTable tbody");
 const formView = document.getElementById("formView");
 const tableView = document.getElementById("tableView");
 const tripForm = document.getElementById("tripForm");
+const transportInput = document.getElementById("transportInput");
+const popup = document.getElementById("transportPopup");
 
+/* --------- Navigation --------- */
 function openForm(){
+    clearForm();   // always open blank
     formView.style.display="block";
     tableView.style.display="none";
 }
+
+let activeFilters = {};
+let sortColumn = null;
+let sortDir = "asc";
+
+function openFilter(col, th){
+    document.querySelectorAll(".filter-box").forEach(f=>f.remove());
+
+    const box = document.createElement("div");
+    box.className = "filter-box";
+    box.innerHTML = `
+        <button onclick="sortAsc(${col})">⬆ Sort A-Z</button>
+        <button onclick="sortDesc(${col})">⬇ Sort Z-A</button>
+        <button onclick="clearFilter(${col})">❌ Clear</button>
+    `;
+    th.appendChild(box);
+    box.style.display="block";
+}
+
+
+function setFilter(col,val){
+    activeFilters[col] = val.toLowerCase();
+    loadTable();
+}
+
+function clearFilter(col){
+    delete activeFilters[col];
+
+    if(sortColumn === col){
+        sortColumn = null;
+        sortDir = "asc";
+    }
+
+    loadTable();
+}
+
+
+function sortAsc(col){
+    sortColumn = col;
+    sortDir = "asc";
+    loadTable();
+}
+
+function sortDesc(col){
+    sortColumn = col;
+    sortDir = "desc";
+    loadTable();
+}
+
 
 function openTable(){
     formView.style.display="none";
@@ -233,7 +439,7 @@ function openTable(){
     loadTable();
 }
 
-/* Auto calculation */
+/* --------- Auto Calculation --------- */
 pricePerTon.oninput = loadWeight.oninput = unloadWeight.oninput = advanceAmount.oninput = () => {
     const load = +loadWeight.value || 0;
     const unload = +unloadWeight.value || 0;
@@ -243,14 +449,28 @@ pricePerTon.oninput = loadWeight.oninput = unloadWeight.oninput = advanceAmount.
     const totalCalc = delivered * price;
 
     total.value = totalCalc.toFixed(2);
-    balance.value = (totalCalc - (+advanceAmount.value || 0)).toFixed(2);
+   let adv = +advanceAmount.value || 0;
+if(adv > totalCalc){
+    advanceAmount.value = totalCalc.toFixed(2);
+    adv = totalCalc;
+}
+balance.value = (totalCalc - adv).toFixed(2);
+
 };
 
-/* Validation before saving */
+function generateTripId(){
+    let last = localStorage.getItem("lastTripId") || 0;
+    last = parseInt(last) + 1;
+    localStorage.setItem("lastTripId", last);
+    return "TR-" + String(last).padStart(4, "0");
+}
+
+
+/* --------- Save Trip --------- */
 tripForm.onsubmit = e => {
     e.preventDefault();
 
-    if (!tripDate.value || !vehicleNumber.value.trim() || !transportName.value.trim() ||
+    if (!tripDate.value || !vehicleNumber.value.trim() || !transportInput.value.trim() ||
         !source.value.trim() || !destination.value.trim() ||
         !pricePerTon.value || !loadWeight.value || !advanceAmount.value) {
         alert("Please fill all required fields before saving!");
@@ -258,10 +478,10 @@ tripForm.onsubmit = e => {
     }
 
     const data = {
-        id: editId || Date.now(),
+id: editId || generateTripId(),
         date: tripDate.value,
         vehicle: vehicleNumber.value.trim(),
-        transport: transportName.value.trim(),
+        transport: transportInput.value.trim(),
         source: source.value.trim(),
         dest: destination.value.trim(),
         pricePerTon: pricePerTon.value,
@@ -286,76 +506,281 @@ tripForm.onsubmit = e => {
     openTable();
 };
 
+function clearForm(){
+    tripForm.reset();
+    editId = null;
+    total.value = "";
+    balance.value = "";
+transportAddress.value = "";
+transportPhone.value = "";
+
+}
+
+
+/* --------- Transport Popup --------- */
+transportInput.addEventListener("click", () => {
+    const rect = transportInput.getBoundingClientRect();
+    popup.style.display = "block";
+    popup.style.top = (rect.bottom + window.scrollY + 6) + "px";
+
+    const list = document.getElementById("transportList");
+    list.innerHTML = "<option value=''>-- Select Transport --</option>";
+    transports.forEach(t=>{
+        list.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+    });
+
+  list.onchange = () => {
+    const selected = transports.find(t => t.name === list.value);
+
+    if(selected){
+        transportInput.value = selected.name;
+        transportAddress.value = selected.address || "";
+        transportPhone.value = selected.phone || "";
+    }
+
+    closeTransportPopup();
+};
+
+
+    if(window.innerWidth < 600){
+        popup.style.left = "50%";
+        popup.style.transform = "translateX(-50%)";
+        popup.style.width = "90%";
+    } else {
+        popup.style.left = (rect.left + window.scrollX) + "px";
+        popup.style.width = rect.width + "px";
+    }
+});
+
+function closeTransportPopup(){
+    popup.style.display = "none";
+    tName.value = "";
+    tAddress.value = "";
+    tPhone.value = "";
+}
+
+function saveTransport(){
+    const name = tName.value.trim();
+    if(!name) return alert("Enter Transport Name");
+
+    if(transports.some(t => t.name.toLowerCase() === name.toLowerCase())){
+        alert("Transport already exists");
+        return;
+    }
+
+    transports.push({
+        name,
+        address: tAddress.value,
+        phone: tPhone.value
+    });
+
+    localStorage.setItem("transports", JSON.stringify(transports));
+   transportInput.value = name;
+   transportAddress.value = tAddress.value;
+   transportPhone.value = tPhone.value;
+    closeTransportPopup();
+}
+
+
+/* --------- Table --------- */
 function loadTable(){
-    tableBody.innerHTML = "";
     const search = searchBox.value.toLowerCase();
     const date = filterDate.value;
 
-    trips.filter(t=>{
+    let filtered = trips.filter(t=>{
         return (!search || t.vehicle.toLowerCase().includes(search) || t.transport.toLowerCase().includes(search))
             && (!date || t.date === date);
-    }).forEach(t=>{
-        tableBody.innerHTML += `
-        <tr>
-        <td>${t.id}</td><td>${t.date}</td><td>${t.vehicle}</td><td>${t.transport}</td>
-        <td>${t.source}</td><td>${t.dest}</td><td>${t.total}</td>
-        <td>${t.advance}</td><td>${t.balance}</td>
-        <td class="actions">
-        <button class="edit" onclick="editTrip(${t.id})">Edit</button>
-        <button class="delete" onclick="deleteTrip(${t.id})">Del</button>
-        </td>
-        </tr>`;
+    });
+
+    // Column Filters
+filtered = filtered.filter(t=>{
+    const arr = [t.id, t.date, t.vehicle, t.transport, t.source, t.dest, t.total, t.advance, t.balance];
+    return Object.keys(activeFilters).every(i => 
+        arr[i].toString().toLowerCase().includes(activeFilters[i])
+    );
+});
+
+
+// Sorting with numeric columns handled
+if(sortColumn !== null){
+    const keys = ["id","date","vehicle","transport","source","dest","total","advance","balance"];
+    filtered.sort((a,b)=>{
+        let x = a[keys[sortColumn]];
+        let y = b[keys[sortColumn]];
+
+        // Convert numeric columns to numbers for correct sorting
+        if(["total","advance","balance"].includes(keys[sortColumn])){
+            x = parseFloat(x);
+            y = parseFloat(y);
+        }
+
+        return sortDir === "asc" ? x > y ? 1 : -1 : x < y ? 1 : -1;
     });
 }
 
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const pageData = filtered.slice(start, end);
+
+    tableBody.innerHTML = "";
+
+    pageData.forEach(t=>{
+        tableBody.innerHTML += `
+        <tr>
+            <td>${t.id}</td>
+            <td>${t.date}</td>
+            <td>${t.vehicle}</td>
+            <td>${t.transport}</td>
+            <td>${t.source}</td>
+            <td>${t.dest}</td>
+            <td>${t.total}</td>
+            <td>${t.advance}</td>
+            <td>${t.balance}</td>
+            <td class="actions">
+                <button class="edit" onclick="editTrip('${t.id}')">Edit</button>
+                <button class="delete" onclick="deleteTrip('${t.id}')">Del</button>
+            </td>
+        </tr>`;
+    });
+
+    renderPagination(filtered.length);
+}
+
+function renderPagination(total){
+    const pages = Math.ceil(total / rowsPerPage);
+    const div = document.getElementById("pagination");
+
+    if(pages <= 1){
+        div.innerHTML = "";
+        return;
+    }
+
+    let html = "";
+
+    if(currentPage > 1){
+        html += `<button onclick="gotoPage(${currentPage-1})">◀</button>`;
+    }
+
+    for(let i=1;i<=pages;i++){
+        html += `<button 
+            style="margin:0 4px;${i===currentPage?'background:#f59e0b;color:white':''}" 
+            onclick="gotoPage(${i})">${i}</button>`;
+    }
+
+    if(currentPage < pages){
+        html += `<button onclick="gotoPage(${currentPage+1})">▶</button>`;
+    }
+
+    div.innerHTML = html;
+}
+
+function gotoPage(p){
+    currentPage = p;
+    loadTable();
+}
+
 function editTrip(id){
-    const t = trips.find(x => x.id === id);
+    clearForm();
     editId = id;
+
+    const t = trips.find(x => x.id === id);
 
     tripDate.value = t.date;
     vehicleNumber.value = t.vehicle;
-    transportName.value = t.transport;
+    transportInput.value = t.transport;
+
+    const tr = transports.find(x => x.name === t.transport);
+    if(tr){
+        transportAddress.value = tr.address || "";
+        transportPhone.value = tr.phone || "";
+    }
+
     source.value = t.source;
     destination.value = t.dest;
-
     pricePerTon.value = t.pricePerTon;
     loadWeight.value = t.loadWeight;
     unloadWeight.value = t.unloadWeight;
-
     total.value = t.total;
     advanceAmount.value = t.advance;
     balance.value = t.balance;
     paymentdetails.value = t.paymentdetails || '';
     feedback.value = t.feedback || '';
 
-    openForm();
+    formView.style.display="block";
+    tableView.style.display="none";
 }
 
-function deleteTrip(id){
-    const confirmDelete = confirm("Are you sure you want to delete this trip?");
-    if (!confirmDelete) return;
 
+function deleteTrip(id){
+    if(!confirm("Delete this trip?")) return;
     trips = trips.filter(t => t.id !== id);
     localStorage.setItem("trips", JSON.stringify(trips));
     loadTable();
 }
 
 function exportExcel(){
-    let csv="Date,Vehicle,Transport,Source,Destination,Total,Advance,Balance\n";
-    trips.forEach(t=>{
-        csv+=`'${t.date}',${t.vehicle},${t.transport},${t.source},${t.dest},${t.total},${t.advance},${t.balance}\n`;
+
+    const search = searchBox.value.toLowerCase();
+    const date = filterDate.value;
+
+    let filtered = trips.filter(t=>{
+        return (!search || t.vehicle.toLowerCase().includes(search) || t.transport.toLowerCase().includes(search))
+            && (!date || t.date === date);
     });
-    const blob=new Blob([csv],{type:"text/csv"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="trips.csv";
+
+    // Apply column filters
+    filtered = filtered.filter(t=>{
+        const arr = [t.id, t.date, t.vehicle, t.transport, t.source, t.dest, t.total, t.advance, t.balance];
+        return Object.keys(activeFilters).every(i => 
+            arr[i].toString().toLowerCase().includes(activeFilters[i])
+        );
+    });
+
+    // Apply sorting
+    if(sortColumn !== null){
+        const keys = ["id","date","vehicle","transport","source","dest","total","advance","balance"];
+        filtered.sort((a,b)=>{
+            let x = a[keys[sortColumn]];
+            let y = b[keys[sortColumn]];
+
+            if(["total","advance","balance"].includes(keys[sortColumn])){
+                x = parseFloat(x);
+                y = parseFloat(y);
+            }
+
+            return sortDir === "asc" ? x > y ? 1 : -1 : x < y ? 1 : -1;
+        });
+    }
+
+    let csv="ID,Date,Vehicle,Transport,Source,Destination,Total,Advance,Balance\n";
+
+    filtered.forEach(t=>{
+        csv += `"${t.id}","${t.date}","${t.vehicle}","${t.transport}","${t.source}","${t.dest}","${t.total}","${t.advance}","${t.balance}"\n`;
+    });
+
+    const blob = new Blob([csv], {type:"text/csv"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "trips.csv";
     a.click();
 }
 
-searchBox.oninput = filterDate.onchange = loadTable;
+
+searchBox.oninput = filterDate.onchange = () => {
+    currentPage = 1;
+    loadTable();
+};
+document.addEventListener("click", function(e){
+    if(!e.target.closest("th") && !e.target.closest(".filter-box")){
+        document.querySelectorAll(".filter-box").forEach(f=>f.style.display="none");
+    }
+});
+
 
 openTable();
 </script>
+
 
 </body>
 </html>
