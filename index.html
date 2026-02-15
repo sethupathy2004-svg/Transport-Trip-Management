@@ -764,7 +764,7 @@ pricePerTon.oninput = loadWeight.oninput = unloadWeight.oninput = advanceAmount.
     const price = +pricePerTon.value || 0;
 
     const delivered = Math.max(load - unload, 0);
-    const totalCalc = delivered * price;
+    const totalCalc = unload* price;
 
     total.value = totalCalc.toFixed(2);
    let adv = +advanceAmount.value || 0;
