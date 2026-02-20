@@ -14,18 +14,19 @@ body{
 font-family:Poppins,sans-serif;
 background:radial-gradient(circle at top,#0f2027,#203a43,#000);
 padding:20px;
-      overflow-x:auto;
+
 }
 
 .container{
-    width:1100px;
-    min-width:1100px;
+    max-width:1100px;   /* desktop max width */
+    width:100%;        /* mobile full width */
     margin:auto;
     background:white;
     padding:25px;
     border-radius:16px;
     box-shadow:0 20px 60px rgba(0,0,0,0.4);
 }
+
 
 
 h2{text-align:center;margin-bottom:20px}
@@ -71,17 +72,29 @@ label{font-size:13px;margin-top:10px;display:block}
     gap: 20px;
 }
 
-@media (min-width: 992px) {
-    .form-grid {
-        grid-template-columns: 1fr 1fr; /* DESKTOP: 2 columns */
+.section-row{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:20px;
+}
+
+@media(min-width:900px){
+    .section-row{
+        grid-template-columns:1fr 1fr;
     }
+}
+
 
     .buttons,
     h3,
     table {
         grid-column: span 2;
     }
+
+.form-card{
+    width:100%;
 }
+
 
 .section{border:1px solid #ddd;padding:15px;border-radius:10px;margin-bottom:15px}
 
@@ -381,8 +394,11 @@ input[type="date"], #filterDate{
 
 <div class="form-grid">
 
+<!-- ROW 1 -->
+<div class="section-row">
 <div class="section">
 <h3>Trip Information</h3>
+
 <label>Trip Date</label>
 <input type="date" id="tripDate" required>
 
@@ -390,22 +406,37 @@ input[type="date"], #filterDate{
 <input type="text" id="vehicleNumber" required>
 
 <div class="autocomplete-box">
-    <label>Transport Name</label>
-  <input type="text" id="transportInput" placeholder="Search or add transport..." autocomplete="off">
-  <div id="transportDropdown" class="autocomplete-list"></div>
+<label>Transport Name</label>
+<input type="text" id="transportInput" placeholder="Search or add transport..." autocomplete="off">
+<div id="transportDropdown" class="autocomplete-list"></div>
 </div>
-
 
 <label>Transport Address</label>
 <input type="text" id="transportAddress" required>
 
 <label>Transport Phone</label>
 <input type="text" id="transportPhone" required>
-
-
-
+</div>
+<div>
+    <div class="section">
+<h3>Driver Details</h3>
+<div class="autocomplete-box">
+<label>Driver Name</label>
+<input type="text" id="driverInput" placeholder="Search or add driver..." autocomplete="off">
+<div id="driverDropdown" class="autocomplete-list"></div>
 </div>
 
+<label>Driver Phone</label>
+<input type="text" id="driverPhone" required>
+
+<label>Driver Address</label>
+<textarea id="driverAddress" required></textarea>
+
+<label>Driver License</label>
+<input type="file" id="driverLicense" accept="image/*,.pdf">
+<button type="button" class="add-btn" style="margin-top:10px" onclick="viewLicense()">View License</button> 
+</div>
+</div>
 <div class="section">
 <h3>Route</h3>
 <label>Source</label>
@@ -414,9 +445,13 @@ input[type="date"], #filterDate{
 <label>Destination</label>
 <input type="text" id="destination" required>
 </div>
+</div>
 
+<!-- ROW 2 -->
+<div class="section-row">
 <div class="section">
 <h3>Load & Price</h3>
+
 <label>Price Per Ton</label>
 <input type="number" id="pricePerTon" required>
 
@@ -429,26 +464,32 @@ input[type="date"], #filterDate{
 
 <div class="section">
 <h3>Payment</h3>
+
 <label>Payment Details</label>
 <textarea id="paymentdetails" placeholder="Enter the Payment Details"></textarea>
+
 <label>Advance Amount</label>
 <input type="number" id="advanceAmount" required>
+
 <label>Total</label>
 <input id="total" readonly>
-
 
 <label>Balance</label>
 <input id="balance" readonly>
 </div>
+</div>
 
-<!-- Feedback Section -->
+<!-- ROW 3 -->
+<div class="section-row">
 <div class="section">
 <h3>Feedback</h3>
 <label>Feedback</label>
 <textarea id="feedback" placeholder="Enter any feedback or notes here"></textarea>
 </div>
+</div>
 
 </div>
+
 
 <div style="text-align:center;margin-top:20px">
 <button class="add-btn" type="submit">Save</button>
@@ -468,28 +509,45 @@ input[type="date"], #filterDate{
 
     <label>Address</label>
   <textarea id="tAddress" rows="3" style="width:100%"></textarea>
-
-
     <label>Contact No</label>
     <input id="tPhone">
-
-    
-
     <div style="margin-top:12px;text-align:right">
+
       <button class="add-btn" onclick="saveTransport()">Save</button>
 <button type="button" class="cancel" onclick="closeTransportPopup()">Cancel</button>
+    </div>
+  </div>
+</div>
 
+<div class="popup" id="driverPopup">
+  <div class="small-popup">
+    <h3>Add Driver</h3>
 
+    <label>Name</label>
+    <input id="dName">
 
+    <label>Phone</label>
+    <input id="dPhone">
+
+    <label>Address</label>
+    <textarea id="dAddress"></textarea>
+
+    <label>License (Image / PDF)</label>
+    <input type="file" id="dLicense" accept="image/*,.pdf">
+
+    <div style="margin-top:12px;text-align:right">
+      <button class="add-btn" onclick="saveDriver()">Save</button>
+      <button class="cancel" onclick="closeDriverPopup()">Cancel</button>
     </div>
   </div>
 </div>
 
 
+
 <script>
 let currentPage = 1;
 const rowsPerPage = 10;
-
+let drivers = JSON.parse(localStorage.getItem("drivers") || "[]");
 let trips = JSON.parse(localStorage.getItem("trips") || "[]");
 let transports = JSON.parse(localStorage.getItem("transports") || "[]");
 
@@ -600,6 +658,105 @@ function selectTransport(t){
     document.getElementById("transportDropdown").innerHTML = "";
 }
 
+const driverInput = document.getElementById("driverInput");
+
+driverInput.addEventListener("input", function () {
+    const value = this.value.toLowerCase();
+    const dropdown = document.getElementById("driverDropdown");
+    dropdown.innerHTML = "";
+
+    let found = false;
+
+    drivers.forEach(d => {
+        if (d.name.toLowerCase().includes(value)) {
+            let div = document.createElement("div");
+            div.textContent = d.name;
+            div.onclick = () => selectDriver(d);
+            dropdown.appendChild(div);
+            found = true;
+        }
+    });
+
+    if (!found && value.trim() !== "") {
+        let add = document.createElement("div");
+        add.innerHTML = `➕ Add "<b>${this.value}</b>"`;
+        add.onclick = () => openDriverPopup(this.value);
+        dropdown.appendChild(add);
+    }
+});
+
+function openDriverPopup(name=""){
+    document.getElementById("driverPopup").style.display="block";
+    dName.value = name;
+    document.body.classList.add("modal-open");
+}
+
+function closeDriverPopup(){
+    document.getElementById("driverPopup").style.display="none";
+    dName.value="";
+    dPhone.value="";
+    dAddress.value="";
+    dLicense.value="";
+    document.body.classList.remove("modal-open");
+}
+
+function saveDriver(){
+    if(!dName.value || !dPhone.value){
+        alert("Enter Driver Name and Phone");
+        return;
+    }
+
+    const reader = new FileReader();
+    const file = dLicense.files[0];
+
+    reader.onload = function(){
+        const obj = {
+            name: dName.value,
+            phone: dPhone.value,
+            address: dAddress.value,
+            license: file ? reader.result : ""
+        };
+
+        drivers.push(obj);
+        localStorage.setItem("drivers", JSON.stringify(drivers));
+        selectDriver(obj);
+        closeDriverPopup();
+    }
+
+    if(file){
+        reader.readAsDataURL(file);
+    } else {
+        reader.onload();
+    }
+}
+
+function selectDriver(d){
+    driverInput.value = d.name;
+    driverPhone.value = d.phone;
+    driverAddress.value = d.address;
+    document.getElementById("driverDropdown").innerHTML = "";
+}
+
+function viewLicense(){
+    const tripLic = editId 
+        ? trips.find(t => t.id === editId)?.driverLicense 
+        : (drivers.find(d => d.name === driverInput.value)?.license || "");
+
+    if(!tripLic){
+        alert("No license found for this driver");
+        return;
+    }
+
+    const w = window.open();
+    if(tripLic.includes("pdf")){
+        w.document.write(`<iframe src="${tripLic}" width="100%" height="100%"></iframe>`);
+    }else{
+        w.document.write(`<img src="${tripLic}" style="width:100%">`);
+    }
+}
+
+
+
 
 
 
@@ -610,7 +767,7 @@ pricePerTon.oninput = loadWeight.oninput = unloadWeight.oninput = advanceAmount.
     const price = +pricePerTon.value || 0;
 
     const delivered = Math.max(load - unload, 0);
-    const totalCalc = delivered * price;
+    const totalCalc = unload* price;
 
     total.value = totalCalc.toFixed(2);
    let adv = +advanceAmount.value || 0;
@@ -641,6 +798,8 @@ tripForm.onsubmit = e => {
         return;
     }
 
+    const dObj = drivers.find(d => d.name === driverInput.value);
+
    const data = {
     id: editId || generateTripId(),
     date: tripDate.value,
@@ -648,6 +807,10 @@ tripForm.onsubmit = e => {
     transport: transportInput.value.trim(),
     transportAddress: transportAddress.value,
     transportPhone: transportPhone.value,
+    driver: driverInput.value,
+    driverPhone: driverPhone.value,
+    driverAddress: driverAddress.value,
+    driverLicense: dObj ? dObj.license : "",
     source: source.value.trim(),
     dest: destination.value.trim(),
     pricePerTon: pricePerTon.value,
@@ -658,6 +821,8 @@ tripForm.onsubmit = e => {
     balance: balance.value,
     paymentdetails: paymentdetails.value.trim(),
     feedback: feedback.value.trim()
+
+ 
 };
 
 
@@ -841,6 +1006,10 @@ function editTrip(id){
     transportInput.value = t.transport;
     transportAddress.value = t.transportAddress || "";
     transportPhone.value = t.transportPhone || "";
+    driverInput.value = t.driver || "";
+    driverPhone.value = t.driverPhone || "";
+    driverAddress.value = t.driverAddress || "";
+    driverLicense.value = "";  
     source.value = t.source;
     destination.value = t.dest;
     pricePerTon.value = t.pricePerTon;
