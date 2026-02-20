@@ -84,12 +84,21 @@ label{font-size:13px;margin-top:10px;display:block}
     }
 }
 
+/* Mobile default (single column) */
+.buttons,
+h3,
+table {
+    grid-column: span 1;
+}
 
+/* Desktop only */
+@media(min-width:900px){
     .buttons,
     h3,
     table {
         grid-column: span 2;
     }
+}
 
 .form-card{
     width:100%;
@@ -108,7 +117,18 @@ table{
     border-collapse:collapse;
     margin-top:15px;
     font-size:12px;
-    white-space:nowrap;
+}
+
+@media(max-width:768px){
+
+    .table-wrap{
+        overflow-x:auto;
+    }
+
+    table{
+        min-width:800px;
+    }
+
 }
 
 th,td{
@@ -222,26 +242,60 @@ th {
     align-items:center;
     gap:20px;
 }
-
+/* Mobile */
 .left-filters{
     display:grid;
-    grid-template-columns: 
-        1.2fr   /* ID */
-        1fr     /* Date */
-        1.2fr   /* Vehicle */
-        1.4fr   /* Transport */
-        1fr     /* Source */
-        1fr     /* Destination */
-        0.9fr   /* Total */
-        1fr     /* Advance */
-        1fr     /* Balance */
-        1.2fr;  /* Action */
-    gap:14px;
-    align-items:center;
-      flex-wrap:nowrap;
-    overflow-x:auto;
+    grid-template-columns: 1fr;
+    gap:12px;
 }
 
+/* Desktop */
+@media(min-width:900px){
+    .left-filters{
+        grid-template-columns: 
+            1.2fr
+            1fr
+            1.2fr
+            1.4fr
+            1fr
+            1fr
+            0.9fr
+            1fr
+            1fr
+            1.2fr;
+    }
+}
+@media(max-width:768px){
+    body{
+        padding:10px;
+    }
+
+    .container{
+        padding:15px;
+        border-radius:12px;
+    }
+}
+@media(max-width:768px){
+    .section-row{
+        grid-template-columns: 1fr !important;
+    }
+
+    .btn-wrap{
+        grid-column: span 1;
+        flex-direction:column;
+    }
+
+    .search-wrap,
+    .date-wrap{
+        grid-column: span 1;
+    }
+}
+@media(max-width:480px){
+    .small-popup{
+        width:95%;
+        padding:15px;
+    }
+}
 
 
 
@@ -267,18 +321,44 @@ th {
     box-shadow:0 0 0 4px rgba(245,158,11,0.35);
 }
 
-.search-wrap{
-    grid-column: span 4;   /* ID + Date + Vehicle + Transport */
+/* Mobile default */
+.search-wrap,
+.date-wrap,
+.btn-wrap{
+    grid-column: span 1;
 }
 
-.date-wrap{
-    grid-column: span 2;   /* Source + Destination */
+/* Desktop only */
+@media(min-width:900px){
+
+    .search-wrap{
+        grid-column: span 4;
+    }
+
+    .date-wrap{
+        grid-column: span 2;
+    }
+
+    .btn-wrap{
+        grid-column: span 3;
+        display:flex;
+        gap:12px;
+        justify-content:flex-end;
+    }
+
 }
-.btn-wrap{
-    grid-column: span 3;   /* Total + Advance + Balance */
-    display:flex;
-    gap:12px;
-    justify-content:flex-end;
+
+/* Mobile button fix */
+@media(max-width:768px){
+
+    .btn-wrap{
+        flex-direction:column;
+    }
+
+    .btn-wrap button{
+        width:100%;
+    }
+
 }
 
 .autocomplete-box {
